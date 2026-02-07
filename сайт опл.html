@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>XexWayVpn — Premium Access</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <style>
+        :root {
+            --bg-color: #020202;
+            --card-bg: rgba(15, 15, 15, 0.8);
+            --accent: #007AFF;
+            --accent-glow: rgba(0, 122, 255, 0.4);
+            --text-main: #ffffff;
+            --text-dim: #86868b;
+            --border: rgba(255, 255, 255, 0.1);
+        }
+
+        * { user-select: none; -webkit-user-select: none; box-sizing: border-box; outline: none; }
+
+        body, html {
+            margin: 0; padding: 0; height: 100%;
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif;
+            background: var(--bg-color); color: var(--text-main);
+            display: flex; justify-content: center; align-items: center; overflow: hidden;
+        }
+
+        .orb { position: absolute; border-radius: 50%; filter: blur(100px); z-index: -1; opacity: 0.15; animation: move 20s infinite alternate ease-in-out; }
+        .orb-1 { width: 400px; height: 400px; background: var(--accent); top: -10%; left: -5%; }
+        .orb-2 { width: 500px; height: 500px; background: #5856d6; bottom: -10%; right: -5%; animation-delay: -5s; }
+        @keyframes move { from { transform: translate(0, 0); } to { transform: translate(40px, 30px); } }
+
+        #notification {
+            position: fixed; top: -100px; left: 50%; transform: translateX(-50%);
+            width: 90%; max-width: 350px; background: rgba(28, 28, 30, 0.9);
+            backdrop-filter: blur(25px); border: 1px solid var(--border);
+            padding: 12px 18px; border-radius: 20px; z-index: 2000;
+            display: flex; align-items: center; gap: 12px; box-shadow: 0 15px 35px rgba(0,0,0,0.5);
+        }
+        .notif-icon { width: 30px; height: 30px; background: var(--accent); border-radius: 7px; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 10px; }
+
+        #welcome-overlay { position: fixed; inset: 0; background: #000; z-index: 1000; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; }
+        .char { display: inline-block; opacity: 0; filter: blur(8px); transform: translateY(15px); font-size: 42px; font-weight: 700; letter-spacing: -1px; }
+        .welcome-subtext { font-size: 16px; color: var(--text-dim); margin-top: 15px; opacity: 0; transform: translateY(10px); }
+
+        .container { width: 100%; max-width: 420px; padding: 20px; opacity: 0; transform: scale(0.98); }
+        .logo-text { font-size: 42px; font-weight: 800; text-align: center; margin-bottom: 30px; background: linear-gradient(180deg, #fff 0%, #888 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+
+        .glass-card { background: var(--card-bg); backdrop-filter: blur(40px); border-radius: 35px; padding: 35px 25px; border: 1px solid var(--border); box-shadow: 0 40px 100px rgba(0,0,0,0.7); min-height: 400px; display: flex; flex-direction: column; }
+
+        .btn { width: 100%; padding: 20px; border: none; border-radius: 22px; background: var(--accent); color: #fff; font-size: 17px; font-weight: 700; cursor: pointer; box-shadow: 0 12px 30px var(--accent-glow); transition: 0.3s; text-decoration: none; display: flex; justify-content: center; align-items: center; }
+        .btn:hover { filter: brightness(1.1); transform: translateY(-2px); }
+
+        input { width: 100%; padding: 20px; border-radius: 20px; border: 1px solid var(--border); background: rgba(255,255,255,0.06); color: #fff; text-align: center; margin-bottom: 12px; font-size: 16px; }
+
+        .section { display: none; opacity: 0; flex-direction: column; align-items: center; height: 100%; flex-grow: 1; }
+        .active-section { display: flex; opacity: 1; }
+        .back-link { margin-top: 25px; color: var(--text-dim); cursor: pointer; font-size: 14px; }
+
+        /* СЛАЙД-ШОУ СТИЛИ */
+        .slides-wrapper { flex-grow: 1; display: flex; align-items: center; justify-content: center; text-align: center; padding: 10px 0; }
+        .slide-text { font-size: 19px; line-height: 1.5; color: #fff; font-weight: 500; }
+        .slide-accent { color: var(--accent); font-weight: 800; }
+        .dots { display: flex; gap: 8px; margin-bottom: 20px; }
+        .dot { width: 6px; height: 6px; background: var(--text-dim); border-radius: 50%; transition: 0.3s; }
+        .dot.active { width: 20px; border-radius: 10px; background: var(--accent); }
+
+        .tariff-card { width: 100%; background: linear-gradient(145deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.01) 100%); border: 1px solid var(--border); padding: 22px; border-radius: 24px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; transition: 0.4s; }
+        .tariff-card:hover { border-color: var(--accent); background: rgba(0, 122, 255, 0.05); }
+        .t-title { font-size: 18px; font-weight: 700; color: #fff; }
+        .t-price { font-size: 20px; font-weight: 850; color: var(--accent); }
+    </style>
+</head>
+<body>
+
+<div id="notification">
+    <div class="notif-icon">XW</div>
+    <div>
+        <div id="notif-title" style="font-weight: 700; font-size: 13px;">XexWay VPN</div>
+        <div id="notif-text" style="font-size: 12px; color: var(--text-dim);">Статус</div>
+    </div>
+</div>
+
+<div id="welcome-overlay">
+    <div id="welcome-text"></div>
+    <div class="welcome-subtext" id="welcome-sub">Лучший VPN для соц сетей</div>
+</div>
+
+<div class="orb orb-1"></div>
+<div class="orb orb-2"></div>
+
+<div class="container" id="main-container">
+    <div class="logo-text">XexWay</div>
+    <div class="glass-card">
+        
+        <div id="login-section" class="section active-section">
+            <p style="color:var(--text-dim); font-size: 14px; margin-bottom: 25px;">Введите ваш ID из Telegram</p>
+            <input type="text" id="user-id-input" placeholder="Например: 7525191296">
+            <a href="https://t.me/XexWay_bot" target="_blank" style="color:var(--text-dim); font-size: 12px; margin-bottom: 20px; text-decoration:none;">Нету ID? Получить в боте</a>
+            <button class="btn" onclick="checkID()">Войти</button>
+        </div>
+
+        <div id="nickname-section" class="section">
+            <p style="color:#fff; font-size: 18px; font-weight: 600; margin-bottom: 10px;">Почти готово!</p>
+            <p style="color:var(--text-dim); font-size: 13px; margin-bottom: 25px;">Придумайте английский никнейм</p>
+            <input type="text" id="nickname-input" placeholder="User123" maxlength="15">
+            <button class="btn" onclick="saveNickname()">Продолжить</button>
+        </div>
+
+        <div id="slideshow-section" class="section">
+            <div class="slides-wrapper">
+                <div id="slide-content" class="slide-text"></div>
+            </div>
+            <div class="dots" id="slide-dots"></div>
+            <button class="btn" id="slide-btn" onclick="nextSlide()">Далее</button>
+        </div>
+
+        <div id="tariff-section" class="section">
+            <p id="personal-welcome" style="color:#fff; font-weight:700; margin-bottom: 5px;"></p>
+            <p style="color:var(--text-dim); margin-bottom: 25px;">Выберите план подписки</p>
+            <div class="tariff-card" onclick="selectTariff('Standard', '85')">
+                <div><div class="t-title">Standard</div><div style="color:var(--text-dim); font-size:12px;">1 месяц</div></div>
+                <div class="t-price">85₽</div>
+            </div>
+            <div class="tariff-card" onclick="selectTariff('Premium', '430')">
+                <div><div class="t-title">Premium</div><div style="color:var(--text-dim); font-size:12px;">6 месяцев</div></div>
+                <div class="t-price">430₽</div>
+            </div>
+            <div class="back-link" onclick="location.reload()">Выйти</div>
+        </div>
+
+        <div id="payment-section" class="section">
+            <div style="text-align: center; margin-top: 20px;">
+                <p id="selected-plan-name" style="color: var(--text-dim);"></p>
+                <h2 id="final-price" style="font-size: 56px; font-weight: 900; color: #fff; margin: 10px 0;"></h2>
+                <p style="color: var(--accent); margin-bottom: 30px;">Завершите оплату в боте</p>
+            </div>
+            <a class="btn" href="https://t.me/XexWay_bot" target="_blank">Оплатить в боте</a>
+            <div class="back-link" onclick="switchSection('tariff-section')">← Назад</div>
+        </div>
+    </div>
+</div>
+
+<script>
+    let currentSlide = 0;
+    const slides = [
+        { text: "Этот VPN сделали <span class='slide-accent'>два зумера</span>, работая по 10 часов каждый день, чтобы у тебя всё летало." },
+        { text: "Название <span class='slide-accent'>XexWay</span> пришло нам в голову абсолютно от балды, но звучит же круто?" },
+        { text: "Мы сделали лучший сервис для <span class='slide-accent'>Инсты и ТикТока</span>. Никаких лагов, только чистый кайф." }
+    ];
+
+    // Анимация старта
+    const welcomeString = "Привет, это XexWay";
+    const wrapper = document.getElementById('welcome-text');
+    welcomeString.split('').forEach(char => {
+        const span = document.createElement('span');
+        span.textContent = char === ' ' ? '\u00A0' : char;
+        span.className = 'char';
+        wrapper.appendChild(span);
+    });
+
+    window.onload = () => {
+        const tl = gsap.timeline();
+        tl.to(".char", { opacity: 1, filter: "blur(0px)", y: 0, stagger: 0.04, duration: 0.7, ease: "power4.out" })
+          .to("#welcome-sub", { opacity: 1, y: 0, duration: 0.8 }, "-=0.2")
+          .to("#welcome-overlay", { opacity: 0, duration: 1, delay: 1.2, onComplete: () => { 
+              document.getElementById('welcome-overlay').style.display = 'none'; 
+          }})
+          .to("#main-container", { opacity: 1, scale: 1, duration: 0.8 }, "-=0.4");
+    };
+
+    function switchSection(id) {
+        const curr = document.querySelector('.active-section');
+        const next = document.getElementById(id);
+        gsap.to(curr, { opacity: 0, y: 10, duration: 0.3, onComplete: () => {
+            curr.classList.remove('active-section'); curr.style.display = 'none';
+            next.style.display = 'flex';
+            gsap.fromTo(next, { opacity: 0, y: -10 }, { opacity: 1, y: 0, duration: 0.4 });
+            next.classList.add('active-section');
+        }});
+    }
+
+    async function checkID() {
+        const val = document.getElementById('user-id-input').value.trim();
+        if(!val) return showNotif("Ошибка", "Введите ID", true);
+        try {
+            const res = await fetch('/check_id', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ user_id: val }) });
+            const data = await res.json();
+            if(data.success) switchSection('nickname-section');
+            else showNotif("Отказ", "ID не найден в базе", true);
+        } catch (e) { showNotif("Ошибка", "Сервер выключен", true); }
+    }
+
+    function saveNickname() {
+        const nick = document.getElementById('nickname-input').value.trim();
+        if(!/^[a-zA-Z0-9_]+$/.test(nick)) return showNotif("Ошибка", "Только английские буквы!", true);
+        document.getElementById('personal-welcome').innerText = "Йоу, " + nick + "!";
+        updateSlide();
+        switchSection('slideshow-section');
+    }
+
+    function updateSlide() {
+        const content = document.getElementById('slide-content');
+        const dotsBox = document.getElementById('slide-dots');
+        content.innerHTML = slides[currentSlide].text;
+        dotsBox.innerHTML = slides.map((_, i) => `<div class="dot ${i === currentSlide ? 'active' : ''}"></div>`).join('');
+        document.getElementById('slide-btn').innerText = currentSlide === slides.length - 1 ? "Погнали к тарифам" : "Далее";
+    }
+
+    function nextSlide() {
+        if (currentSlide < slides.length - 1) {
+            currentSlide++;
+            gsap.fromTo("#slide-content", { opacity: 0, x: 20 }, { opacity: 1, x: 0, duration: 0.4 });
+            updateSlide();
+        } else {
+            switchSection('tariff-section');
+        }
+    }
+
+    function selectTariff(name, price) {
+        document.getElementById('selected-plan-name').innerText = "Тариф: " + name;
+        document.getElementById('final-price').innerText = price + " ₽";
+        switchSection('payment-section');
+    }
+
+    function showNotif(title, text, isError = false) {
+        document.getElementById('notif-title').innerText = title;
+        document.getElementById('notif-text').innerText = text;
+        gsap.to("#notification", { top: 20, duration: 0.6 });
+        setTimeout(() => { gsap.to("#notification", { top: -100, duration: 0.6 }); }, 3000);
+    }
+</script>
+</body>
+</html>
